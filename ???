@@ -1,0 +1,143 @@
+import tkinter as tk
+from tkinter import messagebox, PhotoImage
+root = tk.Tk()
+root.title("Study Buddy – Flashcards & MCQs")
+root.geometry("520x650")
+root.configure(bg="#FAF3FF")
+heart = "❤"
+star = "★"
+flashcards = [
+    {"q": "Define atomic number.", "a": "Number of protons in the nucleus."},
+    {"q": "What is Avogadro's constant?", "a": "6.022 × 10^23 mol⁻¹"},
+    {"q": "Define isobars.", "a": "Atoms with same mass number but different atomic number."},
+    {"q": "What is electron affinity?", "a": "Energy released when an atom gains an electron."},
+]
+mcqs = [
+    {
+        "q": "Which has the smallest size?",
+        "options": ["Na", "Na⁺", "Cl", "Cl⁻"],
+        "correct": 1
+    },
+    {
+        "q": "Which of the following is a state function?",
+        "options": ["Heat", "Work", "Internal energy", "Path length"],
+        "correct": 2
+    },
+    {
+        "q": "Which orbital has l = 2?",
+        "options": ["s", "p", "d", "f"],
+        "correct": 2
+    },
+]
+
+flash_index = 0
+mcq_index = 0
+
+# -------------------------------
+# Flashcard Section
+# -------------------------------
+flash_frame = tk.Frame(root, bg="#FAF3FF")
+flash_frame.pack(pady=20)
+
+title_fc = tk.Label(flash_frame, text=f"Flashcards {star}", font=("Segoe UI", 22, "bold"), bg="#FAF3FF")
+title_fc.pack()
+
+card = tk.Label(
+    flash_frame,
+    text=flashcards[flash_index]["q"],
+    wraplength=420,
+    font=("Segoe UI", 15),
+    bg="#FFFFFF",
+    width=35,
+    height=6,
+    relief="ridge",
+    bd=3
+)
+card.pack(pady=10)
+
+def flip_flashcard():
+    global flash_index
+    card.config(text=flashcards[flash_index]["a"], bg="#FFF2CC")
+
+def next_flashcard():
+    global flash_index
+    flash_index = (flash_index + 1) % len(flashcards)
+    card.config(text=flashcards[flash_index]["q"], bg="#FFFFFF")
+
+btn_flip = tk.Button(flash_frame, text="Flip", font=("Segoe UI", 12, "bold"), bg="#D8C4FF",
+                     command=flip_flashcard)
+btn_flip.pack(side="left", padx=30)
+
+btn_next = tk.Button(flash_frame, text="Next", font=("Segoe UI", 12, "bold"), bg="#C3E5FF",
+                     command=next_flashcard)
+btn_next.pack(side="right", padx=30)
+
+mcq_frame = tk.Frame(root, bg="#FAF3FF")
+mcq_frame.pack(pady=20)
+
+title_mcq = tk.Label(mcq_frame, text=f"MCQs {heart}", font=("Segoe UI", 22, "bold"), bg="#FAF3FF")
+title_mcq.pack()
+
+question_label = tk.Label(
+    mcq_frame,
+    text=mcqs[mcq_index]["q"],
+    wraplength=420,
+    font=("Segoe UI", 15),
+    bg="#FFFFFF",
+    width=35,
+    height=4,
+    relief="ridge",
+    bd=3
+)
+question_label.pack(pady=10)
+
+selected = tk.IntVar(value=-1)
+
+options_frame = tk.Frame(mcq_frame, bg="#FAF3FF")
+options_frame.pack()
+
+option_buttons = []
+
+def load_mcq():
+    global mcq_index
+    q = mcqs[mcq_index]
+
+    question_label.config(text=q["q"])
+    selected.set(-1)  # FIXED: now answers won't always show wrong
+
+    for i, btn in enumerate(option_buttons):
+        btn.config(text=q["options"][i])
+def submit_answer():
+    global mcq_index
+    if selected.get() == -1:
+        messagebox.showwarning("Oops!", "Select an option first.")
+        return
+
+    if selected.get() == mcqs[mcq_index]["correct"]:
+        messagebox.showinfo("Correct", f"You got it right! {heart}")
+    else:
+        messagebox.showerror("Wrong", f"Oops, that's incorrect {star}")
+def next_mcq():
+    global mcq_index
+    mcq_index = (mcq_index + 1) % len(mcqs)
+    load_mcq()
+for i in range(4):
+    rb = tk.Radiobutton(
+        options_frame,
+        text="",
+        variable=selected,
+        value=i,
+        font=("Segoe UI", 13),
+        bg="#FAF3FF",
+        anchor="w"
+    )
+    rb.pack(pady=5)
+    option_buttons.append(rb)
+load_mcq()
+btn_submit = tk.Button(mcq_frame, text="Submit", font=("Segoe UI", 12, "bold"), bg="#FFD6E7",
+                      command=submit_answer)
+btn_submit.pack(pady=5)
+btn_next_mcq = tk.Button(mcq_frame, text="Next", font=("Segoe UI", 12, "bold"), bg="#B7F2CF",
+                         command=next_mcq)
+btn_next_mcq.pack(pady=5)
+root.mainloop()
